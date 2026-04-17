@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medical Doctor | Clinical Insights</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Modern reset and layout styling */
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f4f7f9; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .main-card { 
+            background: #ffffff; 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
+            width: 100%; 
+            max-width: 480px; 
+            border-top: 6px solid #007bff; 
+        }
+
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; margin-bottom: 25px; }
+        
+        /* Input Area styling */
+        .input-group p { font-size: 15px; color: #555; margin-bottom: 10px; }
+        
+        textarea { 
+            width: 100%; 
+            height: 110px; 
+            padding: 15px; 
+            border: 1px solid #d1d9e0; 
+            border-radius: 8px; 
+            font-size: 15px; 
+            box-sizing: border-box; 
+            resize: none; 
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus { border-color: #007bff; outline: none; }
+
+        .btn-analyze { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: #007bff; 
+            color: #fff; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            margin-top: 15px;
+            font-weight: 600;
+            transition: background 0.2s ease-in-out;
+        }
+
+        .btn-analyze:hover { background-color: #005cc5; }
+
+        /* Output Display */
+        #prediction-box { 
+            margin-top: 25px; 
+            padding: 18px; 
+            border-radius: 8px; 
+            background-color: #f0f8ff; 
+            display: none; 
+            border: 1px solid #d0e7ff;
+        }
+
+        .status-label { 
+            color: #004085; 
+            font-weight: 700; 
+            font-size: 18px; 
+            margin-bottom: 12px; 
+            display: block;
+            border-bottom: 1px dashed #b8daff;
+            padding-bottom: 8px;
+        }
+
+        .info-row { margin: 8px 0; font-size: 15px; color: #333; }
+        .info-row i { color: #007bff; width: 20px; margin-right: 8px; }
+
+        .legal-notice { 
+            font-size: 10.5px; 
+            color: #721c24; 
+            margin-top: 20px; 
+            text-align: center; 
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            line-height: 1.4;
+        }
+
+        /* Branding Footer */
+        .dev-footer { 
+            margin-top: 40px; 
+            padding-top: 15px; 
+            border-top: 1px solid #f0f0f0; 
+            text-align: center; 
+        }
+
+        .dev-footer .app-name { font-size: 14px; font-weight: bold; color: #444; }
+        .dev-footer .credit { font-size: 12px; color: #777; margin: 4px 0; }
+        .version-tag { 
+            font-size: 10px; 
+            background: #f8f9fa; 
+            padding: 3px 10px; 
+            border-radius: 12px; 
+            border: 1px solid #ddd; 
+            color: #999; 
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <h1>AI Medical Doctor 👨‍⚕️ ⚕️</h1>
+    
+    <div class="input-group">
+        <p>Describe your health issues: 📝</p>
+        <textarea id="symptoms" placeholder="Type symptoms here (e.g., headache, dry cough)..."></textarea>
+    </div>
+
+    <button class="btn-analyze" onclick="handleAnalysis()">Analyze Now 🔍</button>
+
+    <div id="prediction-box">
+        <span class="status-label" id="condition"></span>
+        <div class="info-row"><i class="fas fa-prescription-bottle-alt"></i> <strong>Medication:</strong> <span id="medicines"></span></div>
+        <div class="info-row"><i class="fas fa-vial"></i> <strong>Standard Dosage:</strong> <span id="dosage"></span></div>
+        <div class="info-row"><i class="fas fa-history"></i> <strong>Best Timing:</strong> <span id="timing"></span></div>
+        
+        <div class="legal-notice">
+            ⚠️ DISCLAIMER: This is an automated ML tool. For educational use only. Always seek professional medical advice before taking medication.
+        </div>
+    </div>
+
+    <footer class="dev-footer">
+        <div class="app-name">My Doctor AI Assistant</div>
+        <div class="credit">Developed by <span style="color: #007bff;">Nosrat Jahan</span></div>
+        <div class="version-tag">Build v9.9.9 | Archive: 2025</div>
+    </footer>
+</div>
+
+<script>
+    // Analysis handler for processing symptoms
+    async function handleAnalysis() {
+        const symptomInput = document.getElementById('symptoms').value.trim();
+        
+        if (!symptomInput) {
+            alert("Please provide some symptom details first.");
+            return;
+        }
+
+        // Logic for backend communication
+        try {
+            const payload = new FormData();
+            payload.append('symptoms', symptomInput);
+
+            const request = await fetch('/predict', { 
+                method: 'POST', 
+                body: payload 
+            });
+            
+            const result = await request.json();
+
+            if (result.error) {
+                alert("Processing Error: " + result.error);
+            } else {
+                // Updating the UI with prediction data
+                const box = document.getElementById('prediction-box');
+                box.style.display = 'block';
+                
+                document.getElementById('condition').innerText = "Potential Condition: " + result.condition;
+                document.getElementById('medicines').innerText = result.medicines.join(", ");
+                document.getElementById('dosage').innerText = result.dose;
+                document.getElementById('timing').innerText = result.timing;
+            }
+        } catch (err) {
+            console.error("System Error:", err);
+            alert("Could not connect to the analysis engine.");
+        }
+    }
+</script>
+
+</body>
+</html>
